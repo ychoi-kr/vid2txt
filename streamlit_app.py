@@ -18,19 +18,17 @@ def transcribe(audio_filepath, response_format='text', prompt=None):
             response_format=response_format,
             prompt=prompt,
         )
-    return transcript
+    st.session_state.transcript = transcript
 
-def summarize_transcript(transcript, max_tokens=150):
-    response = client.completions.create(
+def summarize_transcript(transcript):
+    response = client.chat.completions.create(
         model="gpt-4-turbo-preview",
-        prompt=f"요약: {transcript}",
-        temperature=0.7,
-        max_tokens=max_tokens,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0
+        messages=[
+            {"role": "system", "content": "Summarizes text."},
+            {"role": "user", "content": transcript},
+        ],
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message.content
 
 # Streamlit UI 구성
 st.title("Video Subtitles and Summary Generator")
@@ -42,11 +40,18 @@ response_format = st.selectbox("Select Output Format:", ('text', 'srt', 'vtt'))
 if st.button("Generate Subtitles"):
     if url:
         video_path = download_video(url)
-        transcript = transcribe(video_path, response_format=response_format, prompt=prompt)
-        st.text_area("Subtitles:", value=transcript, height=300)
+        transcribe(video_path, response_format=response_format, prompt=prompt)
+        st.text_area("Subtitles:", value=st.session_state.transcript, height=300)
         
         # 다운로드한 파일 삭제
         os.remove(video_path)
     else:
         st.error("Please enter a URL.")
 
+# 요약 버튼을 추가하고, 받아쓰기 결과에 따라 요약 기능 실행
+if st.button("Summarize"):
+    if st.session_state.transcript:
+        summary = summarize_transcript(st.session_state.transcript)
+        st.text_area("Summary:", value=summary, height=150)
+    else:
+        st.warning("Please generate subtitles first.")
