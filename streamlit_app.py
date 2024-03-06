@@ -37,21 +37,30 @@ url = st.text_input("Enter Video URL:")
 prompt = st.text_area("What's the video about? (Optional)", value="", help="Provide a brief description of the video or include specific terms like unique names and key topics to enhance accuracy. This can include spelling out hard-to-distinguish proper nouns.")
 response_format = st.selectbox("Select Output Format:", ('text', 'srt', 'vtt'))
 
+# 세션 상태 초기화
+if 'transcript' not in st.session_state:
+    st.session_state.transcript = ""
+if 'summary' not in st.session_state:
+    st.session_state.summary = ""
+
 if st.button("Generate Subtitles"):
     if url:
         video_path = download_video(url)
         transcribe(video_path, response_format=response_format, prompt=prompt)
-        st.text_area("Subtitles:", value=st.session_state.transcript, height=300)
-        
-        # 다운로드한 파일 삭제
-        os.remove(video_path)
+        os.remove(video_path)  # 다운로드한 파일 삭제
     else:
         st.error("Please enter a URL.")
 
-# 요약 버튼을 추가하고, 받아쓰기 결과에 따라 요약 기능 실행
+# 자막이 있을 경우, 자막 필드를 항상 표시
+if st.session_state.transcript:
+    st.text_area("Subtitles:", value=st.session_state.transcript, height=300)
+
+# "Summarize" 버튼 로직
 if st.button("Summarize"):
     if st.session_state.transcript:
-        summary = summarize_transcript(st.session_state.transcript)
-        st.text_area("Summary:", value=summary, height=150)
-    else:
-        st.warning("Please generate subtitles first.")
+        st.session_state.summary = summarize_transcript(st.session_state.transcript)
+
+# 요약문이 있을 경우, 요약문 필드를 표시
+if st.session_state.summary:
+    st.text_area("Summary:", value=st.session_state.summary, height=150)
+
