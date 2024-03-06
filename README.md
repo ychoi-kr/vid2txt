@@ -25,7 +25,21 @@ cd your-repo-name
 pip install -r requirements.txt
 ```
 
-3. Run the Streamlit application:
+3. Obtain an API Key from OpenAI by signing up at [OpenAI](https://openai.com/).
+
+4. Configure your OpenAI API Key:
+    - Create a `.streamlit` folder in the root directory of your project if it doesn't already exist.
+    - Inside the `.streamlit` folder, create a file named `secrets.toml`.
+    - Add your OpenAI API Key to the `secrets.toml` file in the following format:
+    
+    ```toml
+    [openai]
+    OPENAI_API_KEY = "your_openai_api_key_here"
+    ```
+    
+    Replace `your_openai_api_key_here` with your actual OpenAI API key.
+
+5. Run the Streamlit application:
 
 ```bash
 streamlit run streamlit_app.py
