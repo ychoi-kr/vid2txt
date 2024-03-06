@@ -16,7 +16,7 @@ To run this application, you need Python 3.7 or later and pip installed on your 
 
 ```bash
 git clone https://github.com/ychoi-kr/vid2txt.git
-cd your-repo-name
+cd vid2txt
 ```
 
 2. Install the required Python packages:
